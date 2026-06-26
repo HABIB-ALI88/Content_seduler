@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const error = searchParams.get('error');
 
     if (error || !code) {
-        return NextResponse.redirect(new URL('/?error=auth_failed', request.url));
+        return NextResponse.redirect(new URL('/dashboard?error=auth_failed', request.url));
     }
 
     const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY;
@@ -50,13 +50,13 @@ export async function GET(request: Request) {
 
         if (dbError) {
             console.error("Supabase Error:", dbError);
-            return NextResponse.redirect(new URL('/?error=db_error', request.url));
+            return NextResponse.redirect(new URL('/dashboard?error=db_error', request.url));
         }
 
-        return NextResponse.redirect(new URL('/?success=auth_connected', request.url));
+        return NextResponse.redirect(new URL('/dashboard?success=auth_connected', request.url));
 
     } catch (err: any) {
         console.error("TikTok Token Error:", err?.response?.data || err.message);
-        return NextResponse.redirect(new URL('/?error=token_exchange_failed', request.url));
+        return NextResponse.redirect(new URL('/dashboard?error=token_exchange_failed', request.url));
     }
 }

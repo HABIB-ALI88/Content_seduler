@@ -1,112 +1,110 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
-import { Calendar, Video, CheckCircle2, Clock, XCircle, Plus } from 'lucide-react';
+import { Calendar, Video, Clock, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 
-export default function Dashboard() {
-    const [posts, setPosts] = useState<any[]>([]);
-    const [isConnected, setIsConnected] = useState(false);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            const { data } = await supabase.from('auth_tokens').select('*').eq('id', 1).single();
-            if (data && data.access_token) {
-                setIsConnected(true);
-            }
-        };
-
-        const fetchPosts = async () => {
-            const { data } = await supabase.from('posts').select('*').order('scheduled_at', { ascending: true });
-            if (data) setPosts(data);
-            setLoading(false);
-        };
-
-        checkAuth();
-        fetchPosts();
-
-        // Listen for realtime updates
-        const channel = supabase
-            .channel('posts_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, fetchPosts)
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, []);
-
-    const getStatusIcon = (status: string) => {
-        switch(status) {
-            case 'pending': return <Clock size={16} />;
-            case 'published': return <CheckCircle2 size={16} />;
-            case 'failed': return <XCircle size={16} />;
-            default: return null;
-        }
-    };
-
+export default function Home() {
     return (
-        <div>
-            <div className="header">
-                <h1>TikTok Scheduler</h1>
-                {!isConnected ? (
-                    <a href="/api/auth/tiktok" className="btn btn-primary">
-                        Connect TikTok
-                    </a>
-                ) : (
-                    <Link href="/schedule" className="btn btn-primary">
-                        <Plus size={18} /> New Post
-                    </Link>
-                )}
-            </div>
+        <div className="landing-container">
+            {/* Navigation Bar */}
+            <nav className="navbar">
+                <div className="nav-logo">
+                    <Video className="logo-icon" size={24} />
+                    <span className="logo-text">Content Scheduler</span>
+                </div>
+                <div className="nav-links">
+                    <Link href="/terms">Terms</Link>
+                    <Link href="/privacy">Privacy</Link>
+                    <Link href="/dashboard" className="nav-btn">Dashboard</Link>
+                </div>
+            </nav>
 
-            <div className="glass-panel" style={{ marginBottom: '2rem' }}>
-                <h2 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Calendar size={20} /> Your Content
-                </h2>
-                
-                {loading ? (
-                    <p>Loading posts...</p>
-                ) : posts.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
-                        <Video size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
-                        <p>No posts scheduled yet.</p>
-                        {isConnected && (
-                            <Link href="/schedule" style={{ color: 'var(--primary)', marginTop: '1rem', display: 'inline-block' }}>
-                                Schedule your first video
-                            </Link>
-                        )}
+            {/* Hero Section */}
+            <header className="hero">
+                <div className="hero-content">
+                    <div className="badge">✨ The #1 Tool for Creators</div>
+                    <h1 className="hero-title">Automate your TikTok Growth</h1>
+                    <p className="hero-subtitle">
+                        Schedule your videos, automate your posting, and focus on creating while we handle the distribution. Build your audience on autopilot.
+                    </p>
+                    <div className="hero-actions">
+                        <Link href="/dashboard" className="btn btn-primary btn-large">
+                            Start Scheduling <ArrowRight size={20} />
+                        </Link>
                     </div>
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {posts.map(post => (
-                            <div key={post.id} style={{ 
-                                display: 'flex', 
-                                justifyContent: 'space-between', 
-                                alignItems: 'center',
-                                padding: '1rem',
-                                background: 'rgba(255,255,255,0.02)',
-                                borderRadius: '8px',
-                                border: '1px solid var(--border)'
-                            }}>
+                </div>
+                <div className="hero-visual">
+                    <div className="glass-card mockup-card">
+                        <div className="mockup-header">
+                            <span className="dot red"></span>
+                            <span className="dot yellow"></span>
+                            <span className="dot green"></span>
+                        </div>
+                        <div className="mockup-body">
+                            <div className="mockup-item">
+                                <Calendar size={20} className="mockup-icon text-primary" />
                                 <div>
-                                    <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>{post.title}</h3>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                                        {new Date(post.scheduled_at).toLocaleString()}
-                                    </p>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                    <span className={`status-badge status-${post.status}`} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                        {getStatusIcon(post.status)} {post.status}
-                                    </span>
+                                    <h4>Summer Vlog #1</h4>
+                                    <p>Scheduled for Tomorrow, 10:00 AM</p>
                                 </div>
                             </div>
-                        ))}
+                            <div className="mockup-item">
+                                <Video size={20} className="mockup-icon text-success" />
+                                <div>
+                                    <h4>Trending Sound Dance</h4>
+                                    <p>Published Successfully</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                )}
-            </div>
+                </div>
+            </header>
+
+            {/* Features Section */}
+            <section className="features" id="features">
+                <h2 className="section-title">Everything you need to scale</h2>
+                <div className="features-grid">
+                    <div className="feature-card glass-panel">
+                        <div className="feature-icon-wrapper blue">
+                            <Clock size={24} />
+                        </div>
+                        <h3>Set it and forget it</h3>
+                        <p>Upload your videos in batches and choose exactly when they go live. Our reliable chron-job engine ensures your content drops exactly on time, every time.</p>
+                    </div>
+
+                    <div className="feature-card glass-panel">
+                        <div className="feature-icon-wrapper purple">
+                            <ShieldCheck size={24} />
+                        </div>
+                        <h3>Official TikTok API</h3>
+                        <p>We use the official TikTok Direct Post API. No sketchy workarounds, no password sharing, and 100% compliance with TikTok's Terms of Service.</p>
+                    </div>
+
+                    <div className="feature-card glass-panel">
+                        <div className="feature-icon-wrapper green">
+                            <Zap size={24} />
+                        </div>
+                        <h3>Blazing Fast</h3>
+                        <p>Built on top of Next.js and Supabase for real-time syncing. Your content uploads instantly and schedules perfectly without any noticeable delay.</p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="footer">
+                <div className="footer-content">
+                    <div className="footer-brand">
+                        <Video size={20} />
+                        <span>Content Scheduler</span>
+                    </div>
+                    <div className="footer-links">
+                        <Link href="/terms">Terms of Service</Link>
+                        <Link href="/privacy">Privacy Policy</Link>
+                        <a href="mailto:support@contentscheduler.com">Contact Support</a>
+                    </div>
+                </div>
+                <p className="copyright">&copy; {new Date().getFullYear()} Content Scheduler. All rights reserved.</p>
+            </footer>
         </div>
     );
 }
